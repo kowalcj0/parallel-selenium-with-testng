@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.seniorqa</groupId>
+    <artifactId>stng</artifactId>
+    <version>1.0</version>
+    <name>STNG</name>
+    <description>
+        An example project that runs JUnit tests in parallel using TestNG.
+        Tests are grouped by the browser in which they're going to be executed.
+        Browsers are driver by Selenium WebDriver.
+        Tests can be executed locally or remotely using Selenium Grid.
+        For more details, please refer to README.md
+    </description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <org.seleniumhq.selenium.selenium-server.version>2.40.0</org.seleniumhq.selenium.selenium-server.version>
+        <org.testng.testng.version>6.8.7</org.testng.testng.version>
+        <org.apache.maven.plugins.surefire-testng.version>2.16</org.apache.maven.plugins.surefire-testng.version>
+        <com.lazerycode.selenium.version>1.0.0</com.lazerycode.selenium.version>
+        <googlchromedriverbinary.version>2.9</googlchromedriverbinary.version>
+        <org.jbehave.core.version>3.9.1</org.jbehave.core.version>
+        <log4j.log4j.version>1.2.17</log4j.log4j.version>
+        <org.apache.maven.plugins.maven-surefire-plugin.version>2.16</org.apache.maven.plugins.maven-surefire-plugin.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-server</artifactId>
+            <version>${org.seleniumhq.selenium.selenium-server.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${org.testng.testng.version}</version>
+        </dependency>
+        <dependency>
+            <!--
+            A handy plugin that allows you to download driver binaries automatically
+            To download desired driver binaries, call the plugin like that:
+            mvn clean com.lazerycode.selenium:driver-binary-downloader-maven-plugin:selenium
+            to
+            src: http://ardesco.lazerycode.com/index.php/2012/08/introducing-the-driver-binary-downloader-maven-plugin-for-selenium/
+            -->
+            <groupId>com.lazerycode.selenium</groupId>
+            <artifactId>driver-binary-downloader-maven-plugin</artifactId>
+            <version>${com.lazerycode.selenium.version}</version>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <!--
+        to run tests using custom profile simply add -P name_of_the_profile to mvn command
+        ie.:
+            mvn clean test -P localRunner
+        -->
+        <profile>
+            <id>localRunner</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${org.apache.maven.plugins.maven-surefire-plugin.version}</version>
+                        <configuration>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>src/test/resources/organized.chaos.LocalWebDriverListener.xml</suiteXmlFile>
+                            </suiteXmlFiles>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>remoteRunner</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${org.apache.maven.plugins.maven-surefire-plugin.version}</version>
+                        <configuration>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>src/test/resources/organized.chaos.RemoteWebDriverListener.xml</suiteXmlFile>
+                            </suiteXmlFiles>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!--
+            Use this profile to download driver binaries before running your tests locally.
+            Please find more comments explaining how to configure this plugin below.
+            -->
+            <id>downloadDriverBinaries</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.lazerycode.selenium</groupId>
+                        <artifactId>driver-binary-downloader-maven-plugin</artifactId>
+                        <version>${com.lazerycode.selenium.version}</version>
+                        <configuration>
+                            <!-- root directory that downloaded driver binaries will be stored in -->
+                            <rootStandaloneServerDirectory>binaries</rootStandaloneServerDirectory>
+                            <!-- Where you want to store downloaded zip files -->
+                            <downloadedZipFileDirectory>binaries/zips</downloadedZipFileDirectory>
+                            <customRepositoryMap>src/main/resources/RepositoryMapForMavenWebDriverBinaryDownloaderPlugin.xml</customRepositoryMap>
+                            <operatingSystems>
+                                <windows>false</windows>
+                                <linux>true</linux>
+                                <osx>false</osx>
+                            </operatingSystems>
+                            <!-- Download 32bit binaries -->
+                            <thirtyTwoBitBinaries>false</thirtyTwoBitBinaries>
+                            <!-- Download 64bit binaries -->
+                            <sixtyFourBitBinaries>true</sixtyFourBitBinaries>
+                            <!-- If set to false will download every version available (Other filters will be taken into account -->
+                            <onlyGetLatestVersions>true</onlyGetLatestVersions>
+                            <throwExceptionIfSpecifiedVersionIsNotFound>true</throwExceptionIfSpecifiedVersionIsNotFound>
+                            <!-- Provide a list of drivers and binary versions to download (this is a map so only one version can be specified per driver) -->
+                            <getSpecificExecutableVersions>
+                                <googlechrome>${googlchromedriverbinary.version}</googlechrome>
+                                <!--<internetexplorer>2.40.0</internetexplorer>-->
+                            </getSpecificExecutableVersions>
+                            <!-- Number of times to attempt to download each file -->
+                            <fileDownloadRetryAttempts>2</fileDownloadRetryAttempts>
+                            <!-- Number of ms to wait before timing out when trying to connect to remote server to download file -->
+                            <fileDownloadConnectTimeout>20000</fileDownloadConnectTimeout>
+                            <!-- Number of ms to wait before timing out when trying to read file from remote server -->
+                            <fileDownloadReadTimeout>10000</fileDownloadReadTimeout>
+                            <!-- Overwrite any existing binaries that have been downloaded and extracted -->
+                            <overwriteFilesThatExist>false</overwriteFilesThatExist>
+                            <!-- Download drivers specific to the current HOST OS -->
+                            <!--<onlyGetDriversForHostOperatingSystem>false</onlyGetDriversForHostOperatingSystem>-->
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>selenium</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

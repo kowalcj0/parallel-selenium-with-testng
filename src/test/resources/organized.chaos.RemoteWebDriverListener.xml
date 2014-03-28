@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<!--
+Don't set the suite's "time-out" parameter otherwise it will cause tests not to run at all
+-->
+<suite name="Test executed using local WebDriver" parallel="tests">
+    <!--
+    Define URL of your Selenium GRID hub.
+    This "hubURL" parameter will be passed to organized.chaos.RemoteWebDriverListener class
+    -->
+    <parameter name="hubURL" value="http://localhost:4444/wd/hub" />
+    <listeners>
+        <!--
+        Define your custom listeners:
+        organized.chaos.RemoteWebDriverListener - creates instances of RemoteWebDriver for each of the tests below.
+        -->
+        <listener class-name="organized.chaos.RemoteWebDriverListener" />
+    </listeners>
+    <!--
+    In this example same test package is listed twice because we want to run
+    all the tests in this package using different browsers (FF and Chrome).
+    We have them specified twice here because we can parametrize the listener
+    with browser name on test level.
+    -->
+    <test name="Tests run in FF">
+        <!--
+        Specify the browser in which your tests will be executed
+        -->
+        <parameter name="browserName" value="firefox" />
+        <!--
+        Then define which tests you want to run.
+        You can run tests from selected classes or all tests from a selected package.
+        -->
+        <packages>
+            <package name="organized.chaos.tests" />
+        </packages>
+        <!-- If you want to be more specific, replace this with a list of test classes you'd like to run -->
+        <!--
+        <classes>
+            <class name="organized.chaos.tests.FirstThreadDemo" />
+            <class name="organized.chaos.tests.SecondThreadDemo" />
+        </classes>
+        -->
+    </test>
+    <test name="Tests run in Chrome">
+        <parameter name="browserName" value="chrome" />
+        <packages>
+            <package name="organized.chaos.tests" />
+        </packages>
+    </test>
+</suite>

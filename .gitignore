@@ -1,0 +1,14 @@
+# eclipse
+.classpath
+.project
+.settings
+
+# IntelliJ Idea
+.idea
+*.iml
+
+# other files
+target
+*.tmp
+*.log
+plugin.xml
